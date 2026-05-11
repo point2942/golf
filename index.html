@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>球隊活動報名系統</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Noto+Serif+TC:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gd:#1a3a2a;--gm:#2d5a3d;--gl:#4a8c5c;
+  --gold:#c9a84c;--gold2:#e8c96a;
+  --cream:#f5f0e8;--td:#1a1a1a;--tm:#3d3d3d;
+  --sh:rgba(26,58,42,0.15);--red:#c0392b;
+  --blue:#2471a3;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Serif TC',serif;background:var(--cream);color:var(--td);min-height:100vh;}
+
+/* 載入 */
+#lo{position:fixed;inset:0;background:var(--gd);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;}
+.li{font-size:52px;animation:pulse 1.2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.lt{font-family:'Playfair Display',serif;color:var(--gold);font-size:1.1rem;letter-spacing:.1em;}
+.lb{width:200px;height:3px;background:rgba(201,168,76,.2);border-radius:10px;overflow:hidden;}
+.lf{height:100%;background:var(--gold);border-radius:10px;animation:ld 1.5s ease-in-out infinite;}
+@keyframes ld{0%{width:0}50%{width:80%}100%{width:100%}}
+
+/* 頁首 */
+header{background:var(--gd);position:relative;overflow:hidden;}
+header::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 18px,rgba(201,168,76,.06) 18px,rgba(201,168,76,.06) 19px);pointer-events:none;}
+.hdr{position:relative;display:flex;align-items:center;justify-content:space-between;max-width:1200px;margin:0 auto;padding:16px 28px;gap:12px;flex-wrap:wrap;}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-i{width:42px;height:42px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 0 0 3px rgba(201,168,76,.2);flex-shrink:0;}
+.logo h1{font-family:'Playfair Display',serif;color:var(--gold);font-size:1.22rem;font-weight:700;}
+.logo p{color:rgba(255,255,255,.4);font-size:.66rem;letter-spacing:.12em;margin-top:1px;}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.team-pill{background:rgba(201,168,76,.18);border:1px solid rgba(201,168,76,.4);color:var(--gold);font-size:.78rem;padding:4px 12px;border-radius:20px;display:none;}
+.team-pill.show{display:inline-block;}
+.nav{display:flex;gap:5px;flex-wrap:wrap;}
+.tb{padding:6px 13px;border:1.5px solid rgba(201,168,76,.35);background:transparent;color:rgba(255,255,255,.7);font-family:'Noto Serif TC',serif;font-size:.79rem;border-radius:30px;cursor:pointer;transition:all .2s;}
+.tb:hover,.tb.active{background:var(--gold);border-color:var(--gold);color:var(--gd);font-weight:700;}
+.tb.adm{border-color:rgba(201,168,76,.5);}
+.admin-info{display:none;align-items:center;gap:7px;}
+.admin-info.show{display:flex;}
+.admin-name{color:var(--gold);font-size:.75rem;}
+.btn-logout{background:transparent;border:1px solid rgba(255,255,255,.3);color:rgba(255,255,255,.6);padding:3px 9px;border-radius:20px;font-size:.71rem;cursor:pointer;font-family:'Noto Serif TC',serif;}
+.btn-logout:hover{background:rgba(255,255,255,.1);color:#fff;}
+
+/* 主體 */
+main{max-width:1200px;margin:0 auto;padding:28px 18px 80px;}
+.panel{display:none;animation:fi .3s ease;}
+.panel.active{display:block;}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.stitle{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--gd);font-weight:700;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--gold);}
+.card{background:#fff;border-radius:14px;padding:24px 26px;box-shadow:0 4px 20px var(--sh);margin-bottom:16px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px 20px;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fg.full{grid-column:1/-1;}
+.fl{font-size:.76rem;color:var(--gm);font-weight:600;letter-spacing:.08em;}
+.req{color:var(--red);}
+input[type=text],input[type=tel],input[type=email],input[type=number],input[type=date],input[type=time],input[type=password],select,textarea{
+  padding:9px 12px;border:1.5px solid #d0d4cc;border-radius:8px;font-family:'Noto Serif TC',serif;font-size:.87rem;color:var(--td);background:#fafaf8;outline:none;transition:border-color .2s,box-shadow .2s;width:100%;}
+input:focus,select:focus,textarea:focus{border-color:var(--gl);box-shadow:0 0 0 3px rgba(74,140,92,.1);background:#fff;}
+textarea{resize:vertical;min-height:66px;}
+.hint{font-size:.7rem;color:#999;margin-top:2px;}
+.rg{display:flex;gap:12px;flex-wrap:wrap;padding-top:5px;}
+.ri{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:.85rem;}
+.ri input[type=radio]{width:13px;height:13px;accent-color:var(--gl);}
+.cbg{display:flex;flex-wrap:wrap;gap:7px;}
+.cbi{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.81rem;padding:5px 10px;border:1.5px solid #d0d4cc;border-radius:7px;background:#fafaf8;transition:all .15s;}
+.cbi:hover{border-color:var(--gl);background:#f0f7f2;}
+.cbi input{accent-color:var(--gl);width:12px;height:12px;}
+
+/* 按鈕 */
+.btn-p{padding:10px 28px;background:var(--gd);color:var(--gold);border:2px solid var(--gold);border-radius:40px;font-family:'Playfair Display',serif;font-size:.88rem;font-weight:700;letter-spacing:.08em;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px;}
+.btn-p:hover{background:var(--gold);color:var(--gd);transform:translateY(-2px);box-shadow:0 5px 14px rgba(201,168,76,.3);}
+.btn-p:disabled{opacity:.55;cursor:not-allowed;transform:none;}
+.btn-g{padding:7px 15px;background:var(--gold);color:var(--gd);border:none;border-radius:8px;font-family:'Noto Serif TC',serif;font-weight:700;font-size:.81rem;cursor:pointer;display:inline-flex;align-items:center;gap:4px;}
+.btn-g:hover{background:var(--gold2);}
+.btn-exp{padding:6px 13px;background:var(--gold);color:var(--gd);border:none;border-radius:30px;font-family:'Noto Serif TC',serif;font-weight:700;font-size:.78rem;cursor:pointer;}
+.btn-exp:hover{background:var(--gold2);}
+.btn-sm{padding:4px 9px;border-radius:6px;font-size:.74rem;font-family:'Noto Serif TC',serif;cursor:pointer;border:1.5px solid;transition:all .15s;}
+.btn-sm.grn{color:var(--gm);border-color:var(--gm);background:transparent;}
+.btn-sm.grn:hover{background:var(--gm);color:#fff;}
+.btn-sm.red{color:var(--red);border-color:var(--red);background:transparent;}
+.btn-sm.red:hover{background:var(--red);color:#fff;}
+.btn-sm.amb{color:#b7720a;border-color:#b7720a;background:transparent;}
+.btn-sm.amb:hover{background:#b7720a;color:#fff;}
+.btn-sm.blu{color:var(--blue);border-color:var(--blue);background:transparent;}
+.btn-sm.blu:hover{background:var(--blue);color:#fff;}
+.sr{display:flex;justify-content:flex-end;margin-top:6px;}
+
+/* Toast */
+.toast{display:none;position:fixed;top:18px;right:18px;background:var(--gd);color:#fff;padding:12px 17px;border-radius:10px;border-left:4px solid var(--gold);font-size:.85rem;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.22);max-width:280px;}
+.toast.show{display:block;animation:si .28s ease;}
+@keyframes si{from{transform:translateX(50px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* 登入視窗 */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;align-items:center;justify-content:center;padding:18px;}
+.ov.show{display:flex;}
+.login-box{background:#fff;border-radius:16px;padding:32px;width:100%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.28);animation:fi .25s ease;}
+.login-box h3{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--gd);margin-bottom:4px;}
+.login-box .sub{font-size:.8rem;color:#aaa;margin-bottom:20px;}
+.login-err{color:var(--red);font-size:.79rem;margin:8px 0;display:none;}
+.login-err.show{display:block;}
+.btn-login{width:100%;padding:11px;background:var(--gd);color:var(--gold);border:2px solid var(--gold);border-radius:40px;font-family:'Playfair Display',serif;font-size:.9rem;font-weight:700;cursor:pointer;margin-top:6px;transition:all .2s;}
+.btn-login:hover{background:var(--gold);color:var(--gd);}
+.btn-cancel-login{width:100%;padding:8px;background:transparent;color:#aaa;border:none;font-family:'Noto Serif TC',serif;font-size:.8rem;cursor:pointer;margin-top:6px;}
+.btn-cancel-login:hover{color:#666;}
+
+/* 球隊選擇首頁 */
+#teamSelectScreen{display:none;position:fixed;inset:0;background:var(--gd);z-index:100;overflow-y:auto;padding:40px 20px;}
+#teamSelectScreen.show{display:block;}
+.ts-inner{max-width:900px;margin:0 auto;}
+.ts-logo{text-align:center;margin-bottom:36px;}
+.ts-logo .ico{font-size:56px;margin-bottom:10px;}
+.ts-logo h2{font-family:'Playfair Display',serif;color:var(--gold);font-size:1.8rem;font-weight:700;}
+.ts-logo p{color:rgba(255,255,255,.5);font-size:.82rem;margin-top:4px;letter-spacing:.1em;}
+.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:28px;}
+.team-card{background:rgba(255,255,255,.07);border:1.5px solid rgba(201,168,76,.3);border-radius:14px;padding:22px 20px;cursor:pointer;transition:all .22s;text-align:center;}
+.team-card:hover{background:rgba(201,168,76,.12);border-color:var(--gold);transform:translateY(-3px);}
+.team-card .tc-ico{font-size:36px;margin-bottom:10px;}
+.team-card .tc-name{font-family:'Playfair Display',serif;color:var(--gold);font-size:1.1rem;font-weight:700;margin-bottom:4px;}
+.team-card .tc-desc{color:rgba(255,255,255,.55);font-size:.76rem;}
+.ts-admin-btn{text-align:center;margin-top:8px;}
+.btn-ts-admin{background:transparent;border:1.5px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);padding:8px 20px;border-radius:30px;font-family:'Noto Serif TC',serif;font-size:.78rem;cursor:pointer;transition:all .2s;}
+.btn-ts-admin:hover{border-color:rgba(255,255,255,.4);color:rgba(255,255,255,.8);}
+
+/* 場次卡片 */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;margin-bottom:22px;}
+.tcard{background:#fff;border-radius:12px;padding:18px 20px;box-shadow:0 4px 14px var(--sh);border:2.5px solid transparent;cursor:pointer;transition:all .22s;position:relative;overflow:hidden;}
+.tcard::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--gl);border-radius:12px 12px 0 0;}
+.tcard:hover{border-color:var(--gl);transform:translateY(-2px);}
+.tcard.picked{border-color:var(--gold);} .tcard.picked::before{background:var(--gold);}
+.tcard.full{opacity:.55;cursor:not-allowed;}
+.tcl{position:absolute;top:10px;right:10px;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:20px;}
+.lo2{background:var(--gd);color:var(--gold);}
+.lf2{background:var(--red);color:#fff;}
+.lp{background:var(--gold);color:var(--gd);}
+.tct{font-family:'Playfair Display',serif;font-size:1rem;color:var(--gd);font-weight:700;margin-bottom:8px;padding-right:54px;}
+.tcr{display:flex;flex-direction:column;gap:3px;}
+.tc-row{display:flex;align-items:center;gap:6px;font-size:.78rem;color:#666;}
+.tc-row .ic{width:15px;text-align:center;font-size:.87rem;flex-shrink:0;}
+.qw{margin-top:8px;}
+.ql{display:flex;justify-content:space-between;font-size:.68rem;color:#aaa;margin-bottom:3px;}
+.qbar{height:4px;background:#eee;border-radius:10px;overflow:hidden;}
+.qfill{height:100%;border-radius:10px;}
+.no-t{background:#fff;border-radius:12px;padding:40px 20px;text-align:center;color:#bbb;box-shadow:0 4px 14px var(--sh);}
+.sel-ban{background:var(--gd);color:#fff;border-radius:11px;padding:15px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.sbt{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--gold);font-weight:700;}
+.sbm{display:flex;flex-wrap:wrap;gap:10px;margin-top:5px;}
+.sbm span{font-size:.78rem;color:rgba(255,255,255,.8);}
+.btn-rs{background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.25);color:#fff;padding:5px 11px;border-radius:7px;cursor:pointer;font-family:'Noto Serif TC',serif;font-size:.76rem;flex-shrink:0;}
+.btn-rs:hover{background:rgba(255,255,255,.2);}
+
+/* 後台 */
+.sumr{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:16px;}
+.sc{background:#fff;border-radius:11px;padding:15px 17px;box-shadow:0 3px 14px var(--sh);border-top:4px solid var(--gl);}
+.sc .num{font-family:'Playfair Display',serif;font-size:1.7rem;color:var(--gd);font-weight:700;line-height:1;}
+.sc .lbl{font-size:.69rem;color:#999;letter-spacing:.08em;margin-top:2px;}
+.ftabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;}
+.ft{padding:4px 11px;border-radius:20px;border:1.5px solid #d0d4cc;background:#fff;font-family:'Noto Serif TC',serif;font-size:.76rem;cursor:pointer;transition:all .18s;color:#777;}
+.ft:hover{border-color:var(--gl);color:var(--gm);}
+.ft.active{background:var(--gd);border-color:var(--gd);color:var(--gold);font-weight:700;}
+.adtb{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px;flex-wrap:wrap;}
+.sb2{display:flex;align-items:center;background:#fff;border:1.5px solid #d0d4cc;border-radius:30px;padding:5px 12px;gap:5px;min-width:170px;}
+.sb2 input{border:none;background:transparent;outline:none;font-family:'Noto Serif TC',serif;font-size:.83rem;padding:0;flex:1;}
+.tw{background:#fff;border-radius:12px;box-shadow:0 4px 18px var(--sh);overflow:hidden;overflow-x:auto;}
+table{width:100%;border-collapse:collapse;min-width:640px;}
+thead{background:var(--gd);}
+th{padding:10px 12px;text-align:left;font-size:.72rem;color:var(--gold);letter-spacing:.1em;font-weight:600;white-space:nowrap;}
+td{padding:9px 12px;font-size:.82rem;color:var(--tm);border-bottom:1px solid #eef0ec;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#f5fbf6;}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.69rem;font-weight:700;}
+.bc{background:#d4edda;color:#155724;}
+.bp{background:#fff3cd;color:#856404;}
+.bx{background:#f8d7da;color:#721c24;}
+.abtns{display:flex;gap:4px;}
+.empty{text-align:center;padding:38px 20px;color:#ccc;}
+.empty .ic2{font-size:36px;margin-bottom:6px;}
+
+/* 場次管理 */
+.tlist{display:flex;flex-direction:column;gap:11px;margin-bottom:18px;}
+.tmc{background:#fff;border-radius:12px;padding:16px 20px;box-shadow:0 3px 14px var(--sh);display:flex;align-items:center;gap:14px;border-left:5px solid var(--gl);}
+.tmc.closed{border-left-color:var(--red);}
+.tmi{flex:1;min-width:0;}
+.tmt{font-family:'Playfair Display',serif;font-size:.98rem;color:var(--gd);font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.pill{font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:20px;}
+.po{background:#d4edda;color:#155724;}
+.pc{background:#f8d7da;color:#721c24;}
+.tmm{display:flex;flex-wrap:wrap;gap:8px;}
+.tmm span{font-size:.76rem;color:#888;}
+.tma{display:flex;gap:5px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end;}
+.no-t2{background:#fff;border-radius:12px;padding:40px 20px;text-align:center;color:#bbb;box-shadow:0 3px 14px var(--sh);}
+
+/* Modal */
+.modal{background:#fff;border-radius:16px;padding:26px;width:100%;max-width:520px;box-shadow:0 20px 60px rgba(0,0,0,.28);animation:fi .25s ease;max-height:90vh;overflow-y:auto;}
+.modal h3{font-family:'Playfair Display',serif;font-size:1.12rem;color:var(--gd);margin-bottom:16px;padding-bottom:9px;border-bottom:2px solid var(--gold);}
+.mg2{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;margin-bottom:16px;}
+.mg{display:flex;flex-direction:column;gap:5px;}
+.mg.full{grid-column:1/-1;}
+.mbtns{display:flex;gap:7px;justify-content:flex-end;}
+.btn-mc{padding:8px 16px;background:#eee;color:#555;border:none;border-radius:8px;font-family:'Noto Serif TC',serif;font-size:.83rem;cursor:pointer;}
+.btn-mc:hover{background:#ddd;}
+.btn-ms{padding:8px 18px;background:var(--gd);color:var(--gold);border:none;border-radius:8px;font-family:'Playfair Display',serif;font-size:.85rem;font-weight:700;cursor:pointer;}
+.btn-ms:hover{background:var(--gm);}
+.btn-md{padding:8px 16px;background:var(--red);color:#fff;border:none;border-radius:8px;font-family:'Noto Serif TC',serif;font-size:.83rem;font-weight:700;cursor:pointer;}
+.btn-md:hover{background:#a93226;}
+.warnbox{background:#fff5f5;border:1.5px solid #f8d7da;border-radius:8px;padding:11px 14px;margin-bottom:14px;font-size:.81rem;color:#721c24;line-height:1.6;}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px 14px;}
+.di .dk{font-size:.7rem;color:#aaa;letter-spacing:.06em;margin-bottom:1px;}
+.di .dv{font-size:.84rem;color:var(--td);font-weight:500;}
+
+/* 超級管理員 */
+.super-section{background:linear-gradient(135deg,#1a2a3a,#0d1f2d);border-radius:14px;padding:24px 26px;margin-bottom:20px;border:1px solid rgba(201,168,76,.3);}
+.super-section h3{font-family:'Playfair Display',serif;color:var(--gold);font-size:1.05rem;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.team-manage-card{background:rgba(255,255,255,.06);border:1.5px solid rgba(201,168,76,.2);border-radius:10px;padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;}
+.team-manage-card .ti{font-size:28px;flex-shrink:0;}
+.team-manage-info{flex:1;min-width:0;}
+.team-manage-name{font-family:'Playfair Display',serif;color:var(--gold);font-size:.98rem;font-weight:700;}
+.team-manage-meta{font-size:.74rem;color:rgba(255,255,255,.5);margin-top:2px;}
+.team-manage-btns{display:flex;gap:5px;flex-shrink:0;}
+
+/* 公開名單 */
+.roster-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.rtab{padding:5px 12px;border-radius:20px;border:1.5px solid #d0d4cc;background:#fff;font-family:'Noto Serif TC',serif;font-size:.77rem;cursor:pointer;transition:all .18s;color:#777;}
+.rtab:hover{border-color:var(--gl);color:var(--gm);}
+.rtab.active{background:var(--gd);border-color:var(--gd);color:var(--gold);font-weight:700;}
+.roster-card{background:#fff;border-radius:12px;box-shadow:0 4px 18px var(--sh);overflow:hidden;}
+.roster-head{background:var(--gd);padding:13px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px;}
+.roster-head-t{font-family:'Playfair Display',serif;color:var(--gold);font-size:.95rem;font-weight:700;}
+.roster-head-i{font-size:.75rem;color:rgba(255,255,255,.65);}
+.roster-cnt{background:rgba(201,168,76,.2);border:1px solid rgba(201,168,76,.4);color:var(--gold);padding:4px 12px;border-radius:20px;font-size:.78rem;}
+.rtable{width:100%;border-collapse:collapse;}
+.rtable th{padding:9px 13px;text-align:left;font-size:.71rem;color:var(--gm);letter-spacing:.08em;font-weight:700;border-bottom:2px solid #eee;background:#f8fbf8;}
+.rtable td{padding:9px 13px;font-size:.83rem;color:var(--tm);border-bottom:1px solid #f0f0f0;}
+.rtable tr:last-child td{border-bottom:none;}
+.rtable tr:hover td{background:#f8fbf8;}
+.roster-no{text-align:center;padding:32px;color:#ccc;font-size:.85rem;}
+
+.s-note{font-size:.79rem;color:#888;margin-bottom:14px;line-height:1.6;background:#f4f9f5;border-left:3px solid var(--gl);padding:9px 13px;border-radius:0 8px 8px 0;}
+.pw-box{background:#fffdf0;border:1.5px solid #f0e0a0;border-radius:9px;padding:16px 18px;margin-bottom:14px;}
+.pw-box h4{font-family:'Playfair Display',serif;font-size:.9rem;color:var(--gd);margin-bottom:12px;}
+
+@media(max-width:640px){
+  .hdr{padding:12px 14px;}
+  .g2,.mg2{grid-template-columns:1fr;}
+  .fg.full,.mg.full{grid-column:1;}
+  .sumr{grid-template-columns:1fr 1fr;}
+  .tgrid{grid-template-columns:1fr;}
+  .tmc{flex-direction:column;align-items:flex-start;}
+  .card,.modal,.login-box{padding:16px 13px;}
+  .dgrid{grid-template-columns:1fr;}
+  .team-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- 載入 -->
+<div id="lo">
+  <div class="li">⛳</div>
+  <div class="lt">系統載入中，請稍候…</div>
+  <div class="lb"><div class="lf"></div></div>
+</div>
+
+<!-- 球隊選擇首頁 -->
+<div id="teamSelectScreen">
+  <div class="ts-inner">
+    <div class="ts-logo">
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:14px;">
+        <span style="font-size:48px;filter:drop-shadow(0 2px 6px rgba(201,168,76,0.4))">🏌️</span>
+        <span style="font-size:42px;filter:drop-shadow(0 2px 6px rgba(201,168,76,0.3))">🏸</span>
+        <span style="font-size:40px;filter:drop-shadow(0 2px 6px rgba(201,168,76,0.3))">🎾</span>
+      </div>
+      <h2>球隊活動報名系統</h2>
+      <p>SPORTS CLUB REGISTRATION SYSTEM</p>
+    </div>
+    <div class="team-grid" id="teamGrid"></div>
+    <div class="ts-admin-btn">
+      <button class="btn-ts-admin" onclick="openSuperLogin()">🔐 總管理員登入</button>
+    </div>
+  </div>
+</div>
+
+<!-- 頁首 -->
+<header style="display:none" id="mainHeader">
+  <div class="hdr">
+    <div class="logo">
+      <div class="logo-i">⛳</div>
+      <div>
+        <h1 id="sysTitle">球隊活動報名系統</h1>
+        <p>SPORTS CLUB REGISTRATION SYSTEM</p>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <span class="team-pill show" id="teamPill"></span>
+      <div class="nav" id="mainNav">
+        <button class="tb active" onclick="switchTab('register',this)">⛳ 球員報名</button>
+        <button class="tb" onclick="switchTab('cancel',this)">🔍 查詢／取消</button>
+        <button class="tb" onclick="switchTab('roster',this)">📋 報名名單</button>
+        <button class="tb adm" onclick="requireAdmin('admin',this)">後台管理</button>
+        <button class="tb adm" onclick="requireAdmin('tournaments',this)">場次管理</button>
+        <button class="tb adm" onclick="requireAdmin('settings',this)">系統設定</button>
+        <button class="tb" onclick="backToTeamSelect()" style="border-color:rgba(255,255,255,.2);font-size:.73rem;">← 回首頁</button>
+      </div>
+      <div class="admin-info" id="adminInfo">
+        <span class="admin-name" id="adminName"></span>
+        <button class="btn-logout" onclick="doLogout()">登出</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="mainContent" style="display:none">
+
+<!-- ① 球員報名 -->
+<div class="panel active" id="panel-register">
+  <div class="stitle">🏌️ 請選擇報名場次</div>
+  <div class="tgrid" id="tSelectGrid"></div>
+  <div id="regFormWrap" style="display:none">
+    <div class="sel-ban">
+      <div>
+        <div class="sbt" id="selTName"></div>
+        <div class="sbm">
+          <span>📅 <span id="selTDate"></span></span>
+          <span>📍 <span id="selTVenue"></span></span>
+          <span>🏆 <span id="selTFormat"></span></span>
+        </div>
+      </div>
+      <button class="btn-rs" onclick="clearSel()">↩ 重新選擇</button>
+    </div>
+    <div class="card">
+      <div style="font-family:'Playfair Display',serif;font-size:.94rem;color:var(--gd);font-weight:700;margin-bottom:12px;padding-bottom:7px;border-bottom:1.5px solid #eee;">基本資料</div>
+      <div class="g2">
+        <div class="fg"><label class="fl">姓名 <span class="req">*</span></label><input type="text" id="r-name" placeholder="請輸入真實姓名"></div>
+        <div class="fg"><label class="fl">性別</label><div class="rg"><label class="ri"><input type="radio" name="gender" value="男"> 男</label><label class="ri"><input type="radio" name="gender" value="女"> 女</label></div></div>
+        <div class="fg"><label class="fl">手機號碼</label><input type="tel" id="r-phone" placeholder="09XX-XXX-XXX"></div>
+        <div class="fg"><label class="fl">電子郵件</label><input type="email" id="r-email" placeholder="請輸入電子郵件信箱"></div>
+        <div class="fg"><label class="fl">會員編號</label><input type="text" id="r-member" placeholder="非會員請留空"></div>
+        <div class="fg"><label class="fl">公司 / 所屬單位</label><input type="text" id="r-company" placeholder="選填"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-family:'Playfair Display',serif;font-size:.94rem;color:var(--gd);font-weight:700;margin-bottom:12px;padding-bottom:7px;border-bottom:1.5px solid #eee;">球賽資料</div>
+      <div class="g2">
+        <div class="fg"><label class="fl">差點（桿差）</label><input type="number" id="r-handicap" placeholder="0–54" min="0" max="54"><div class="hint">若無正式差點請填自評桿差</div></div>
+        <div class="fg"><label class="fl">希望同組球友</label><input type="text" id="r-group" placeholder="請填姓名，以逗號分隔"></div>
+        <div class="fg full" id="extrasGroup"><label class="fl">加購服務（可複選）</label><div class="cbg" id="extrasCbGroup"></div></div>
+        <div class="fg full"><label class="fl">特殊需求 / 備註</label><textarea id="r-notes" placeholder="如有飲食禁忌、身體狀況或其他需求…"></textarea></div>
+      </div>
+    </div>
+    <div class="card" style="padding:14px 26px;">
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:11px;">
+        <input type="checkbox" id="r-agree" style="width:13px;height:13px;margin-top:3px;accent-color:var(--gl);flex-shrink:0;">
+        <label for="r-agree" id="termsText" style="font-size:.78rem;line-height:1.65;color:#666;cursor:pointer;font-weight:400;letter-spacing:0;"></label>
+      </div>
+      <div class="sr"><button class="btn-p" id="submitBtn" onclick="submitReg()">確認報名 →</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ② 查詢／取消 -->
+<div class="panel" id="panel-cancel">
+  <div class="stitle">🔍 查詢我的報名紀錄</div>
+  <div class="card" style="max-width:500px;margin:0 auto 20px;">
+    <p style="font-size:.81rem;color:#888;margin-bottom:14px;line-height:1.65;">請輸入報名時填寫的姓名及手機號碼，即可查詢記錄並申請取消。</p>
+    <div class="g2">
+      <div class="fg"><label class="fl">姓名 <span class="req">*</span></label><input type="text" id="cq-name" placeholder="請輸入報名時的姓名"></div>
+      <div class="fg"><label class="fl">手機號碼</label><input type="tel" id="cq-phone" placeholder="選填，可提高查詢精確度"></div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px;"><button class="btn-p" onclick="queryMyRegs()">查詢報名紀錄 →</button></div>
+  </div>
+  <div id="cancelResults" style="display:none;max-width:700px;margin:0 auto;">
+    <div class="stitle" style="font-size:.95rem;">查詢結果</div>
+    <div id="cancelResultsList"></div>
+  </div>
+</div>
+
+<!-- ③ 公開報名名單 -->
+<div class="panel" id="panel-roster">
+  <div class="stitle">📋 比賽報名名單</div>
+  <p style="font-size:.81rem;color:#888;margin-bottom:18px;">以下為各場次已確認及待審核的報名名單，供所有球友參考。</p>
+  <div class="roster-tabs" id="rosterTabs"></div>
+  <div id="rosterContent"></div>
+</div>
+
+<!-- ④ 後台管理 -->
+<div class="panel" id="panel-admin">
+  <div class="sumr">
+    <div class="sc"><div class="num" id="admTotal">0</div><div class="lbl">總報名人數</div></div>
+    <div class="sc" style="border-top-color:var(--gold)"><div class="num" id="admConfirmed">0</div><div class="lbl">已確認</div></div>
+    <div class="sc" style="border-top-color:#f0c040"><div class="num" id="admPending">0</div><div class="lbl">待審核</div></div>
+    <div class="sc" style="border-top-color:#e74c3c"><div class="num" id="admCancelled">0</div><div class="lbl">已取消</div></div>
+  </div>
+  <div class="ftabs" id="filterTabs"></div>
+  <div class="adtb">
+    <div class="stitle" style="margin:0;border:none;padding:0;">管理報名名單</div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;">
+      <div class="sb2"><span>🔍</span><input type="text" id="searchQ" placeholder="搜尋姓名、電話…" oninput="renderTable()"></div>
+      <button class="btn-exp" onclick="exportCSV()">⬇ 匯出 CSV</button>
+    </div>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>#</th><th>報名場次</th><th>姓名</th><th>性別</th><th>電話</th><th>差點</th><th>報名時間</th><th>狀態</th><th>操作</th></tr></thead>
+      <tbody id="regTable"><tr><td colspan="9"><div class="empty"><div class="ic2">⛳</div><div>尚無報名資料</div></div></td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ⑤ 場次管理 -->
+<div class="panel" id="panel-tournaments">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+    <div class="stitle" style="margin:0;border:none;padding:0;">🏆 比賽場次管理</div>
+    <button class="btn-g" onclick="openTModal(null)">＋ 新增場次</button>
+  </div>
+  <div class="tlist" id="tList"></div>
+</div>
+
+<!-- ⑥ 系統設定 -->
+<div class="panel" id="panel-settings">
+  <div class="stitle">⚙️ 系統設定</div>
+  <div class="s-note">以下為本球隊的系統設定。各場次請至「場次管理」頁面個別設定。</div>
+  <div class="card">
+    <div class="pw-box">
+      <h4>🔐 球隊管理員帳號密碼</h4>
+      <div class="g2">
+        <div class="fg"><label class="fl">管理員帳號</label><input type="text" id="cfg-user" placeholder="請設定帳號"></div>
+        <div class="fg"><label class="fl">管理員密碼</label><input type="password" id="cfg-pass" placeholder="請設定密碼"></div>
+      </div>
+      <div class="hint" style="margin-top:7px;">⚠️ 修改後請記住新帳號密碼，儲存後立即生效</div>
+    </div>
+    <div class="g2">
+      <div class="fg full"><label class="fl">系統名稱</label><input type="text" id="cfg-name"></div>
+      <div class="fg full"><label class="fl">報名同意條款內容</label><textarea id="cfg-terms" rows="3"></textarea></div>
+    </div>
+  </div>
+  <div class="sr"><button class="btn-p" onclick="saveSettings()">💾 儲存設定 →</button></div>
+</div>
+
+<!-- ⑦ 總管理員 -->
+<div class="panel" id="panel-super">
+  <div class="stitle">👑 總管理員 — 球隊管理</div>
+  <div class="super-section">
+    <h3>🏌️ 球隊列表</h3>
+    <div id="superTeamList"></div>
+    <div style="margin-top:14px;">
+      <button class="btn-g" onclick="openTeamModal(null)">＋ 新增球隊</button>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;">
+    <div style="font-family:'Playfair Display',serif;font-size:.95rem;color:var(--gd);font-weight:700;margin-bottom:12px;">🔐 總管理員密碼設定</div>
+    <div class="g2" style="max-width:440px;">
+      <div class="fg"><label class="fl">總管理員帳號</label><input type="text" id="super-user" placeholder="請設定帳號"></div>
+      <div class="fg"><label class="fl">總管理員密碼</label><input type="password" id="super-pass" placeholder="請設定密碼"></div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:10px;">
+      <button class="btn-p" onclick="saveSuperSettings()">💾 儲存密碼 →</button>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<!-- 登入 Modal -->
+<div class="ov" id="loginOv" onclick="if(event.target===this)cancelLogin()">
+  <div class="login-box">
+    <h3 id="loginTitle">🔐 管理員登入</h3>
+    <div class="sub" id="loginSub">請輸入管理員帳號及密碼</div>
+    <div class="fg"><label class="fl">帳號</label><input type="text" id="loginUser" placeholder="請輸入帳號" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="fg" style="margin-top:10px;"><label class="fl">密碼</label><input type="password" id="loginPass" placeholder="請輸入密碼" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="login-err" id="loginErr">帳號或密碼錯誤，請再試一次</div>
+    <button class="btn-login" onclick="doLogin()">登入</button>
+    <button class="btn-cancel-login" onclick="cancelLogin()">取消</button>
+  </div>
+</div>
+
+<!-- 場次 Modal -->
+<div class="ov" id="tOv" onclick="if(event.target===this)closeTModal()">
+  <div class="modal" style="max-width:560px;max-height:88vh;overflow-y:auto;">
+    <h3 id="tModalH">新增比賽場次</h3>
+    <div class="mg2">
+      <div class="mg full"><label class="fl">場次名稱 <span class="req">*</span></label><input type="text" id="t-name" placeholder="例：2025 春季會員盃"></div>
+      <div class="mg"><label class="fl">日期 <span class="req">*</span></label><input type="date" id="t-date"></div>
+      <div class="mg"><label class="fl">時間</label><input type="time" id="t-time"></div>
+      <div class="mg full"><label class="fl">地點 <span class="req">*</span></label><input type="text" id="t-venue" placeholder="例：台北高爾夫俱樂部"></div>
+      <div class="mg"><label class="fl">比賽方式</label>
+        <input type="text" id="t-format" placeholder="例：比桿賽、比洞賽、友誼賽…">
+      </div>
+      <div class="mg"><label class="fl">名額上限（0 為不限）</label><input type="number" id="t-quota" min="0" placeholder="例：32"></div>
+      <div class="mg full"><label class="fl">場次說明</label><textarea id="t-desc" rows="2" placeholder="例：年度邀請賽"></textarea></div>
+      <div class="mg full"><label class="fl">報名狀態</label>
+        <div class="rg"><label class="ri"><input type="radio" name="tst" value="open" checked> 開放報名</label><label class="ri"><input type="radio" name="tst" value="closed"> 關閉報名</label></div>
+      </div>
+      <div class="mg full">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;">
+          <label class="fl">🛒 加購服務品項（此場次專屬）</label>
+          <button class="btn-g" style="font-size:.74rem;padding:4px 10px;" onclick="addTModalExtra()">＋ 新增</button>
+        </div>
+        <div id="tModalExtrasList" style="display:flex;flex-direction:column;gap:7px;"></div>
+        <div id="tModalExtrasEmpty" style="font-size:.77rem;color:#bbb;text-align:center;padding:10px 0;">尚未設定加購品項（選填）</div>
+      </div>
+    </div>
+    <div class="mbtns"><button class="btn-mc" onclick="closeTModal()">取消</button><button class="btn-ms" onclick="saveTournament()">儲存場次</button></div>
+  </div>
+</div>
+
+<!-- 刪除場次 Modal -->
+<div class="ov" id="delTOv" onclick="if(event.target===this)closeDelTModal()">
+  <div class="modal" style="max-width:380px;">
+    <h3>確認刪除場次</h3>
+    <div class="warnbox" id="delTWarn"></div>
+    <p style="font-size:.81rem;color:#666;margin-bottom:16px;">此操作無法復原，請確認後再刪除。</p>
+    <div class="mbtns"><button class="btn-mc" onclick="closeDelTModal()">取消</button><button class="btn-md" onclick="confirmDelT()">確認刪除</button></div>
+  </div>
+</div>
+
+<!-- 報名詳情 Modal -->
+<div class="ov" id="detailOv" onclick="if(event.target===this)closeDetail()">
+  <div class="modal" style="max-width:460px;">
+    <h3 id="detailH">球員詳情</h3>
+    <div class="dgrid" id="detailContent"></div>
+    <div class="mbtns" style="margin-top:16px;"><button class="btn-mc" onclick="closeDetail()">關閉</button></div>
+  </div>
+</div>
+
+<!-- 加購品項 Modal -->
+<div class="ov" id="exOv" onclick="if(event.target===this)closeExModal()">
+  <div class="modal" style="max-width:370px;">
+    <h3 id="exModalH">新增加購品項</h3>
+    <div style="display:flex;flex-direction:column;gap:11px;margin-bottom:16px;">
+      <div class="fg"><label class="fl">品項名稱 <span class="req">*</span></label><input type="text" id="ex-name" placeholder="例：賽後晚宴"></div>
+      <div class="fg"><label class="fl">Emoji 圖示</label><input type="text" id="ex-icon" placeholder="例：🍽" maxlength="4"><div class="hint">選填</div></div>
+      <div class="fg"><label class="fl">價格（元）</label><input type="number" id="ex-price" placeholder="例：800" min="0"><div class="hint">填 0 或留空表示免費</div></div>
+    </div>
+    <div class="mbtns"><button class="btn-mc" onclick="closeExModal()">取消</button><button class="btn-ms" onclick="saveExtra()">儲存品項</button></div>
+  </div>
+</div>
+
+<!-- 刪除加購 Modal -->
+<div class="ov" id="delExOv" onclick="if(event.target===this)closeDelExModal()">
+  <div class="modal" style="max-width:340px;">
+    <h3>確認刪除品項</h3>
+    <div class="warnbox">即將刪除加購服務品項「<span id="delExName"></span>」，此操作無法復原。</div>
+    <div class="mbtns"><button class="btn-mc" onclick="closeDelExModal()">取消</button><button class="btn-md" onclick="confirmDelEx()">確認刪除</button></div>
+  </div>
+</div>
+
+<!-- 取消報名確認 Modal -->
+<div class="ov" id="cancelOv" onclick="if(event.target===this)closeCancelOv()">
+  <div class="modal" style="max-width:360px;">
+    <h3>確認取消報名</h3>
+    <div class="warnbox" id="cancelWarnText"></div>
+    <p style="font-size:.8rem;color:#666;margin-bottom:16px;">取消後如需重新報名，請重新填寫報名表。</p>
+    <div class="mbtns"><button class="btn-mc" onclick="closeCancelOv()">返回</button><button class="btn-md" onclick="confirmCancelReg()">確認取消報名</button></div>
+  </div>
+</div>
+
+<!-- 球隊新增/編輯 Modal -->
+<div class="ov" id="teamOv" onclick="if(event.target===this)closeTeamModal()">
+  <div class="modal" style="max-width:440px;">
+    <h3 id="teamModalH">新增球隊</h3>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px;">
+      <div class="fg"><label class="fl">球隊名稱 <span class="req">*</span></label><input type="text" id="team-name" placeholder="例：台北高爾夫球隊"></div>
+      <div class="fg"><label class="fl">球隊 Emoji 圖示</label><input type="text" id="team-icon" placeholder="例：🏌️" maxlength="4"><div class="hint">選填，顯示在球隊選擇頁</div></div>
+      <div class="fg"><label class="fl">球隊說明</label><input type="text" id="team-desc" placeholder="例：成立於 2010 年，共 50 名會員"></div>
+      <div class="fg"><label class="fl">排列順序</label><input type="number" id="team-sort" placeholder="例：1（數字越小越前面）" min="1"><div class="hint">用數字控制球隊在選擇頁的排列順序</div></div>
+      <div class="fg"><label class="fl">管理員帳號 <span class="req">*</span></label><input type="text" id="team-user" placeholder="請設定此球隊管理員帳號"></div>
+      <div class="fg"><label class="fl">管理員密碼 <span class="req">*</span></label><input type="password" id="team-pass" placeholder="請設定此球隊管理員密碼"></div>
+    </div>
+    <div class="mbtns"><button class="btn-mc" onclick="closeTeamModal()">取消</button><button class="btn-ms" onclick="saveTeam()">儲存球隊</button></div>
+  </div>
+</div>
+
+<!-- 刪除球隊 Modal -->
+<div class="ov" id="delTeamOv" onclick="if(event.target===this)closeDelTeamModal()">
+  <div class="modal" style="max-width:370px;">
+    <h3>確認刪除球隊</h3>
+    <div class="warnbox" id="delTeamWarn"></div>
+    <p style="font-size:.8rem;color:#666;margin-bottom:16px;">此操作將刪除該球隊所有場次及報名資料，無法復原。</p>
+    <div class="mbtns"><button class="btn-mc" onclick="closeDelTeamModal()">取消</button><button class="btn-md" onclick="confirmDelTeam()">確認刪除</button></div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════
+   Firebase Firestore REST API
+════════════════════════════════════════ */
+var FB_PROJECT = 'golf-registration-110b4';
+var FB_API_KEY = 'AIzaSyAtegGslC3AO45C8edpRGSbLG4tivBSKFk';
+var FB_BASE    = 'https://firestore.googleapis.com/v1/projects/'+FB_PROJECT+'/databases/(default)/documents';
+var FB_KEY     = '?key='+FB_API_KEY;
+
+function fsToJs(fields) {
+  if (!fields) return {};
+  var obj={};
+  for (var k in fields) {
+    var v=fields[k];
+    if      (v.stringValue!==undefined)  obj[k]=v.stringValue;
+    else if (v.integerValue!==undefined) obj[k]=Number(v.integerValue);
+    else if (v.doubleValue!==undefined)  obj[k]=v.doubleValue;
+    else if (v.booleanValue!==undefined) obj[k]=v.booleanValue;
+    else if (v.nullValue!==undefined)    obj[k]=null;
+    else if (v.arrayValue!==undefined)   obj[k]=(v.arrayValue.values||[]).map(function(av){
+      if (av.mapValue)               return fsToJs(av.mapValue.fields);
+      if (av.stringValue!==undefined)  return av.stringValue;
+      if (av.integerValue!==undefined) return Number(av.integerValue);
+      return null;
+    });
+    else if (v.mapValue!==undefined) obj[k]=fsToJs(v.mapValue.fields);
+  }
+  return obj;
+}
+
+function jsToFs(obj) {
+  var fields={};
+  for (var k in obj) {
+    var v=obj[k];
+    if      (v===null||v===undefined)   fields[k]={nullValue:null};
+    else if (typeof v==='boolean')      fields[k]={booleanValue:v};
+    else if (typeof v==='number')       fields[k]={integerValue:String(v)};
+    else if (typeof v==='string')       fields[k]={stringValue:v};
+    else if (Array.isArray(v))          fields[k]={arrayValue:{values:v.map(function(item){
+      if (typeof item==='object'&&item!==null) return {mapValue:{fields:jsToFs(item)}};
+      if (typeof item==='number') return {integerValue:String(item)};
+      if (typeof item==='string') return {stringValue:item};
+      return {nullValue:null};
+    })}};
+    else if (typeof v==='object')       fields[k]={mapValue:{fields:jsToFs(v)}};
+  }
+  return fields;
+}
+
+async function fsGetAll(col) {
+  var r=await fetch(FB_BASE+'/'+col+FB_KEY);
+  if (!r.ok) throw new Error('讀取失敗 '+r.status);
+  var data=await r.json();
+  if (!data.documents) return [];
+  return data.documents.map(function(d){
+    return Object.assign({_fid:d.name.split('/').pop()},fsToJs(d.fields));
+  });
+}
+async function fsAdd(col,obj) {
+  var r=await fetch(FB_BASE+'/'+col+FB_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:jsToFs(obj)})});
+  if (!r.ok) throw new Error('新增失敗 '+r.status);
+  return (await r.json()).name.split('/').pop();
+}
+async function fsUpdate(col,fid,obj) {
+  var fields=jsToFs(obj);
+  var mask=Object.keys(fields).map(function(k){return 'updateMask.fieldPaths='+k;}).join('&');
+  var r=await fetch(FB_BASE+'/'+col+'/'+fid+'?'+mask+'&key='+FB_API_KEY,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:fields})});
+  if (!r.ok) throw new Error('更新失敗 '+r.status);
+}
+async function fsSet(col,fid,obj) {
+  var r=await fetch(FB_BASE+'/'+col+'/'+fid+FB_KEY,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:jsToFs(obj)})});
+  if (!r.ok) throw new Error('寫入失敗 '+r.status);
+}
+async function fsDel(col,fid) {
+  var r=await fetch(FB_BASE+'/'+col+'/'+fid+FB_KEY,{method:'DELETE'});
+  if (!r.ok) throw new Error('刪除失敗 '+r.status);
+}
+
+/* ════════════════════════════════════════
+   全域資料
+════════════════════════════════════════ */
+var allTeams   = [];  // 所有球隊
+var tournaments= [];  // 當前球隊場次
+var regs       = [];  // 當前球隊報名
+var currentTeam= null; // 目前選擇的球隊
+var cfg = {
+  sysname:'高爾夫球賽報名系統',
+  terms:'本人已詳閱並同意球賽規則及注意事項，報名後如需取消請於賽前 7 天通知，逾期恕不退費。主辦單位保留調整賽制之權利。',
+  adminUser:'admin', adminPass:'golf1234',
+  extras:[
+    {id:1,icon:'🍽',name:'賽後晚宴',price:800},
+    {id:2,icon:'🚗',name:'電動高爾夫車',price:600},
+    {id:3,icon:'🏌',name:'練習場券',price:200},
+    {id:4,icon:'📸',name:'球場攝影留念',price:500}
+  ]
+};
+var cfgDocId=null;
+
+// 超級管理員設定
+var superCfg={superUser:'superadmin',superPass:'super1234'};
+var superCfgDocId=null;
+
+// 登入狀態
+var isAdmin  =false; // 球隊管理員
+var isSuper  =false; // 超級管理員
+var loginMode='team'; // 'team' or 'super'
+var pendingTab=null, pendingBtn=null;
+
+// 其他狀態
+var selTid=null, editTid=null, delTid=null;
+var adminFilter='all', rosterFilter=null;
+var editExtraId=null, pendingDelExtraId=null, pendingCancelId=null;
+var editTeamId=null, delTeamId=null;
+
+/* ════════════════════════════════════════
+   初始載入
+════════════════════════════════════════ */
+async function init() {
+  try {
+    // 讀取超級管理員設定
+    var sDocs=await fsGetAll('superConfig');
+    if (sDocs.length>0) { superCfgDocId=sDocs[0]._fid; var sd=sDocs[0]; delete sd._fid; superCfg=Object.assign({},superCfg,sd); }
+
+    // 讀取所有球隊
+    allTeams=await fsGetAll('teams');
+  } catch(e) {
+    console.error(e);
+    showToast('連線失敗，請確認 Firebase 設定後重新整理',false);
+  }
+  document.getElementById('lo').style.display='none';
+  showTeamSelect();
+}
+
+/* ════════════════════════════════════════
+   球隊選擇首頁
+════════════════════════════════════════ */
+function showTeamSelect() {
+  document.getElementById('teamSelectScreen').classList.add('show');
+  document.getElementById('mainHeader').style.display='none';
+  document.getElementById('mainContent').style.display='none';
+  renderTeamGrid();
+}
+
+function renderTeamGrid() {
+  var grid=document.getElementById('teamGrid');
+  if (!allTeams.length) {
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:rgba(255,255,255,.4);padding:30px 0;font-size:.88rem;">尚未建立任何球隊<br><span style="font-size:.78rem;margin-top:6px;display:block;">請以總管理員身份登入後新增球隊</span></div>';
+    return;
+  }
+  var sorted=allTeams.slice().sort(function(a,b){ return (Number(a.sortOrder)||999)-(Number(b.sortOrder)||999); });
+  grid.innerHTML=sorted.map(function(t){
+    return '<div class="team-card" onclick="selectTeam(\''+t._fid+'\')">'
+      +'<div class="tc-ico">'+(t.icon||'⛳')+'</div>'
+      +'<div class="tc-name">'+t.name+'</div>'
+      +'<div class="tc-desc">'+(t.desc||'點擊進入報名系統...<<若迷路點擊"回首頁">>')+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+async function selectTeam(fid) {
+  var team=allTeams.find(function(t){ return t._fid===fid; });
+  if (!team) return;
+  currentTeam=team;
+  document.getElementById('lo').style.display='flex';
+
+  try {
+    // 讀取此球隊的設定、場次、報名
+    var cfgDocs=await fsGetAll('teams/'+fid+'/config');
+    if (cfgDocs.length>0) {
+      cfgDocId=cfgDocs[0]._fid;
+      var loaded=cfgDocs[0]; delete loaded._fid;
+      cfg=Object.assign({},cfg,loaded);
+      if (cfg.extras) cfg.extras=cfg.extras.map(function(e){ return Object.assign({},e,{id:Number(e.id)}); });
+    } else {
+      cfgDocId=null;
+      cfg={sysname:team.name+' 報名系統',terms:'本人已詳閱並同意球賽規則及注意事項，報名後如需取消請於賽前 7 天通知，逾期恕不退費。主辦單位保留調整賽制之權利。',adminUser:team.adminUser||'admin',adminPass:team.adminPass||'golf1234',extras:[{id:1,icon:'🍽',name:'賽後晚宴',price:800},{id:2,icon:'🚗',name:'電動高爾夫車',price:600},{id:3,icon:'🏌',name:'練習場券',price:200},{id:4,icon:'📸',name:'球場攝影留念',price:500}]};
+    }
+    tournaments=await fsGetAll('teams/'+fid+'/tournaments');
+    regs=await fsGetAll('teams/'+fid+'/registrations');
+  } catch(e) { console.error(e); showToast('讀取球隊資料失敗',false); }
+
+  isAdmin=false; isSuper=false;
+  document.getElementById('adminInfo').classList.remove('show');
+  document.getElementById('sysTitle').textContent=cfg.sysname;
+  document.getElementById('termsText').textContent=cfg.terms;
+  document.getElementById('teamPill').textContent='⛳ '+team.name;
+
+  document.getElementById('teamSelectScreen').classList.remove('show');
+  document.getElementById('mainHeader').style.display='block';
+  document.getElementById('mainContent').style.display='block';
+  document.getElementById('lo').style.display='none';
+
+  // 切回報名頁
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('panel-register').classList.add('active');
+  document.querySelectorAll('.tb').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelector('.tb').classList.add('active');
+  rosterFilter=null; selTid=null; adminFilter='all';
+  renderTSelect();
+}
+
+function backToTeamSelect() {
+  currentTeam=null; isAdmin=false; isSuper=false;
+  showTeamSelect();
+}
+
+/* ════════════════════════════════════════
+   登入系統
+════════════════════════════════════════ */
+function openSuperLogin() {
+  loginMode='super';
+  document.getElementById('loginTitle').textContent='👑 總管理員登入';
+  document.getElementById('loginSub').textContent='請輸入總管理員帳號及密碼';
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+  document.getElementById('loginErr').classList.remove('show');
+  document.getElementById('loginOv').classList.add('show');
+  setTimeout(function(){ document.getElementById('loginUser').focus(); },100);
+}
+
+function requireAdmin(tab,btn) {
+  if (isAdmin||isSuper) { switchTab(tab,btn); return; }
+  loginMode='team';
+  pendingTab=tab; pendingBtn=btn;
+  document.getElementById('loginTitle').textContent='🔐 球隊管理員登入';
+  document.getElementById('loginSub').textContent='請輸入「'+currentTeam.name+'」管理員帳號及密碼';
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+  document.getElementById('loginErr').classList.remove('show');
+  document.getElementById('loginOv').classList.add('show');
+  setTimeout(function(){ document.getElementById('loginUser').focus(); },100);
+}
+
+function doLogin() {
+  var u=document.getElementById('loginUser').value.trim();
+  var p=document.getElementById('loginPass').value;
+  var ok=false;
+
+  if (loginMode==='super') {
+    if (u===superCfg.superUser&&p===superCfg.superPass) {
+      isSuper=true; isAdmin=true; ok=true;
+      document.getElementById('loginOv').classList.remove('show');
+      document.getElementById('adminInfo').classList.add('show');
+      document.getElementById('adminName').textContent='👑 總管理員';
+      document.getElementById('teamSelectScreen').classList.remove('show');
+      document.getElementById('mainHeader').style.display='block';
+      document.getElementById('mainContent').style.display='block';
+      // 超級管理員顯示特殊頁面
+      document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+      document.getElementById('panel-super').classList.add('active');
+      document.getElementById('teamPill').textContent='👑 總管理員模式';
+      renderSuperPanel();
+      showToast('總管理員登入成功！');
+    }
+  } else {
+    if (u===cfg.adminUser&&p===cfg.adminPass) {
+      isAdmin=true; ok=true;
+      document.getElementById('loginOv').classList.remove('show');
+      document.getElementById('adminInfo').classList.add('show');
+      document.getElementById('adminName').textContent='👤 '+currentTeam.name+' 管理員';
+      if (pendingTab) { switchTab(pendingTab,pendingBtn); pendingTab=null; pendingBtn=null; }
+      showToast('管理員登入成功！');
+    }
+  }
+
+  if (!ok) {
+    document.getElementById('loginErr').classList.add('show');
+    document.getElementById('loginPass').value='';
+    document.getElementById('loginPass').focus();
+  }
+}
+
+function cancelLogin() {
+  document.getElementById('loginOv').classList.remove('show');
+  pendingTab=null; pendingBtn=null;
+}
+
+function doLogout() {
+  isAdmin=false; isSuper=false;
+  document.getElementById('adminInfo').classList.remove('show');
+  if (isSuper||document.getElementById('panel-super').classList.contains('active')) {
+    showTeamSelect();
+  } else {
+    switchTab('register',document.querySelector('.tb'));
+    showToast('已登出');
+  }
+}
+
+/* ════════════════════════════════════════
+   UI 工具
+════════════════════════════════════════ */
+function showToast(msg,ok) {
+  if (ok===undefined) ok=true;
+  var el=document.getElementById('toast');
+  el.textContent=(ok?'✅ ':'❌ ')+msg;
+  el.classList.add('show');
+  setTimeout(function(){ el.classList.remove('show'); },3200);
+}
+
+function switchTab(tab,btn) {
+  document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.tb').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('panel-'+tab).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (tab==='register')    renderTSelect();
+  if (tab==='roster')      renderRoster();
+  if (tab==='admin')       { refreshStats(); renderFilterTabs(); renderTable(); }
+  if (tab==='tournaments') renderTList();
+  if (tab==='settings')    loadSettings();
+  if (tab==='super')       renderSuperPanel();
+}
+
+function fmtDate(s) {
+  if (!s) return '—';
+  var d=new Date(s+'T12:00:00');
+  return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日（週'+'日一二三四五六'[d.getDay()]+'）';
+}
+
+function regCount(tid) {
+  return regs.filter(function(r){ return r.tid===tid&&r.status!=='cancelled'; }).length;
+}
+
+function teamPath(sub) {
+  return 'teams/'+currentTeam._fid+'/'+sub;
+}
+
+/* ════════════════════════════════════════
+   ① 報名頁
+════════════════════════════════════════ */
+function renderExtrasCheckboxes() {
+  var wrap=document.getElementById('extrasCbGroup');
+  var grp=document.getElementById('extrasGroup');
+  var t=selTid?tournaments.find(function(x){ return x.id===selTid; }):null;
+  var extras=t&&t.extras?t.extras:[];
+  if (!extras.length){ grp.style.display='none'; return; }
+  grp.style.display='';
+  wrap.innerHTML=extras.map(function(ex){
+    return '<label class="cbi"><input type="checkbox" value="'+ex.id+'"> '+(ex.icon?ex.icon+' ':'')+ex.name+(ex.price>0?' +$'+ex.price:'（免費）')+'</label>';
+  }).join('');
+}
+
+function renderTSelect() {
+  renderExtrasCheckboxes();
+  var grid=document.getElementById('tSelectGrid');
+  var open=tournaments.filter(function(t){ return t.status==='open'; })
+    .sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
+  if (!open.length) {
+    grid.innerHTML='<div class="no-t"><div style="font-size:38px;margin-bottom:7px">📭</div><div>目前尚無開放報名的場次</div><div style="font-size:.74rem;margin-top:4px;color:#ccc">請稍後再來，或聯絡主辦單位</div></div>';
+    document.getElementById('regFormWrap').style.display='none'; return;
+  }
+  grid.innerHTML=open.map(function(t){
+    var cnt=regCount(t.id),full=t.quota>0&&cnt>=t.quota,pick=selTid===t.id;
+    var pct=t.quota>0?Math.min(100,Math.round(cnt/t.quota*100)):0;
+    var bc=full?'#e74c3c':pct>75?'#e67e22':'var(--gl)';
+    var html='<div class="tcard'+(pick?' picked':'')+(full?' full':'')+'" onclick="'+(full?'':'selTournament(\''+t.id+'\')')+'">';
+    html+='<div class="tcl '+(full?'lf2':pick?'lp':'lo2')+'">'+(full?'額滿':pick?'✓ 已選擇':'開放報名')+'</div>';
+    html+='<div class="tct">'+t.name+'</div><div class="tcr">';
+    html+='<div class="tc-row"><span class="ic">📅</span><span>'+fmtDate(t.date)+'</span></div>';
+    if(t.time) html+='<div class="tc-row"><span class="ic">🕗</span><span>第一組出發：'+t.time+'</span></div>';
+    html+='<div class="tc-row"><span class="ic">📍</span><span>'+(t.venue||'—')+'</span></div>';
+    html+='<div class="tc-row"><span class="ic">🏆</span><span>'+(t.format||'—')+'</span></div>';
+    if(t.desc) html+='<div class="tc-row"><span class="ic">📝</span><span>'+linkify(t.desc)+'</span></div>';
+    html+='</div>';
+    if(t.quota>0) html+='<div class="qw"><div class="ql"><span>報名人數</span><span>'+cnt+' / '+t.quota+'</span></div><div class="qbar"><div class="qfill" style="width:'+pct+'%;background:'+bc+'"></div></div></div>';
+    // 計分系統連結（用 <a> 標籤，不觸發外層 onclick）
+    var tRegs = regs.filter(function(r){ return r.tid===t.id && r.status!=='cancelled'; });
+    var players = encodeURIComponent(tRegs.map(function(r){ return r.name+'|'+(r.handicap||0); }).join(','));
+    var scoreUrl = 'score.html'
+      +'?tid='    + encodeURIComponent(t.id)
+      +'&tname='  + encodeURIComponent(t.name)
+      +'&tdate='  + encodeURIComponent(t.date||'')
+      +'&tvenue=' + encodeURIComponent(t.venue||'')
+      +'&tteam='  + encodeURIComponent(currentTeam ? currentTeam.name : '')
+      +'&players='+ players;
+    html += '<div style="margin-top:10px;padding-top:9px;border-top:1px solid #eee;" onclick="event.stopPropagation()">'
+      + '<a href="'+scoreUrl+'" target="_blank" rel="noopener" onclick="event.stopPropagation()"'
+      + ' style="display:block;width:100%;padding:9px;background:#1a5c38;color:#fff;text-align:center;text-decoration:none;border-radius:8px;font-size:.82rem;font-weight:700;box-sizing:border-box;">'
+      + '📊 進入計分系統（'+tRegs.length+' 人）</a>'
+      + '</div>';
+    return html+'</div>';
+  }).join('');
+}
+
+function selTournament(id) {
+  selTid=id;
+  var t=tournaments.find(function(x){ return x.id===id; }); if(!t) return;
+  document.getElementById('selTName').textContent=t.name;
+  document.getElementById('selTDate').textContent=fmtDate(t.date);
+  document.getElementById('selTVenue').textContent=t.venue||'—';
+  document.getElementById('selTFormat').textContent=t.format||'—';
+  renderTSelect();
+  document.getElementById('regFormWrap').style.display='block';
+  document.getElementById('regFormWrap').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function clearSel() {
+  selTid=null;
+  document.getElementById('regFormWrap').style.display='none';
+  renderTSelect();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+async function submitReg() {
+  var name=document.getElementById('r-name').value.trim();
+  var phone=document.getElementById('r-phone').value.trim();
+  if (!name){ showToast('請填入姓名',false); return; }
+  if (!selTid){ showToast('請先選擇場次',false); return; }
+  var t=tournaments.find(function(x){ return x.id===selTid; });
+  if (!t||t.status!=='open'){ showToast('此場次已關閉報名',false); return; }
+  if (t.quota>0&&regCount(t.id)>=t.quota){ showToast('此場次已額滿',false); return; }
+  var dup=regs.find(function(r){
+    return r.tid===selTid&&r.status!=='cancelled'&&r.name===name&&(phone?r.phone===phone:r.phone==='—');
+  });
+  if (dup){ showToast('「'+name+'」已報名此場次，不可重複報名',false); return; }
+
+  var gender=document.querySelector('input[name="gender"]:checked');
+  var chk=Array.from(document.querySelectorAll('#extrasCbGroup input:checked')).map(function(c){ return Number(c.value); });
+  var tExtras=t.extras||[];
+  var extras=chk.map(function(id){ var e=tExtras.find(function(x){ return x.id===id; }); return e?(e.icon?e.icon+' ':'')+e.name:''; }).filter(Boolean).join('、')||'無';
+
+  var data={
+    id:'r'+Date.now(), tid:selTid, tname:t.name, name:name,
+    gender:gender?gender.value:'—', phone:phone||'—',
+    email:document.getElementById('r-email').value.trim()||'—',
+    member:document.getElementById('r-member').value.trim()||'—',
+    company:document.getElementById('r-company').value.trim()||'—',
+    handicap:document.getElementById('r-handicap').value!==''?Number(document.getElementById('r-handicap').value):0,
+    group:document.getElementById('r-group').value.trim()||'—',
+    extras:extras, notes:document.getElementById('r-notes').value.trim()||'—',
+    status:'pending', at:new Date().toLocaleString('zh-TW')
+  };
+
+  var btn=document.getElementById('submitBtn');
+  btn.disabled=true; btn.textContent='送出中…';
+  try {
+    var fid=await fsAdd(teamPath('registrations'),data);
+    data._fid=fid; regs.push(data);
+    showToast(name+' 報名成功！場次：'+t.name);
+    ['r-name','r-phone','r-email','r-member','r-company','r-handicap','r-group','r-notes'].forEach(function(id){ document.getElementById(id).value=''; });
+    document.getElementById('r-agree').checked=false;
+    document.querySelectorAll('.cbi input').forEach(function(c){ c.checked=false; });
+    document.querySelectorAll('input[name="gender"]').forEach(function(r){ r.checked=false; });
+    clearSel();
+  } catch(e){ showToast('報名失敗，請再試一次',false); console.error(e); }
+  btn.disabled=false; btn.textContent='確認報名 →';
+}
+
+/* ════════════════════════════════════════
+   ② 查詢／取消
+════════════════════════════════════════ */
+function queryMyRegs() {
+  var name=document.getElementById('cq-name').value.trim();
+  var phone=document.getElementById('cq-phone').value.trim();
+  if (!name){ showToast('請輸入姓名',false); return; }
+  var found=regs.filter(function(r){ return r.name===name&&(phone?r.phone===phone:true); });
+  var wrap=document.getElementById('cancelResults'), list=document.getElementById('cancelResultsList');
+  wrap.style.display='block';
+  if (!found.length){
+    list.innerHTML='<div class="card" style="text-align:center;padding:30px;color:#aaa;"><div style="font-size:34px;margin-bottom:7px">🔍</div><div>查無符合的報名記錄</div></div>'; return;
+  }
+  var sm={pending:'<span class="badge bp">待審核</span>',confirmed:'<span class="badge bc">已確認</span>',cancelled:'<span class="badge bx">已取消</span>'};
+  list.innerHTML=found.map(function(r){
+    return '<div class="card" style="margin-bottom:11px;padding:16px 20px;">'
+      +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:11px;flex-wrap:wrap;">'
+      +'<div style="flex:1;min-width:0;">'
+      +'<div style="font-family:\'Playfair Display\',serif;font-size:.97rem;color:var(--gd);font-weight:700;margin-bottom:5px;">'+(r.tname||'—')+'</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.78rem;color:#777;">'
+      +'<span>👤 '+r.name+'</span><span>📱 '+r.phone+'</span><span>🏌 差點：'+r.handicap+'</span><span>🕐 '+r.at+'</span>'
+      +'</div>'
+      +(r.extras&&r.extras!=='無'?'<div style="font-size:.74rem;color:#aaa;margin-top:4px;">加購：'+r.extras+'</div>':'')
+      +'</div>'
+      +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex-shrink:0;">'
+      +sm[r.status]
+      +(r.status!=='cancelled'?'<button class="btn-sm red" onclick="openCancelOv(\''+r._fid+'\')">✕ 取消報名</button>':'<span style="font-size:.72rem;color:#ccc;">已取消</span>')
+      +'</div></div></div>';
+  }).join('');
+}
+
+function openCancelOv(fid) {
+  pendingCancelId=fid;
+  var r=regs.find(function(x){ return x._fid===fid; }); if(!r)return;
+  document.getElementById('cancelWarnText').textContent='您即將取消「'+r.tname+'」的報名（'+r.name+'）。';
+  document.getElementById('cancelOv').classList.add('show');
+}
+function closeCancelOv(){ document.getElementById('cancelOv').classList.remove('show'); }
+async function confirmCancelReg() {
+  var r=regs.find(function(x){ return x._fid===pendingCancelId; }); if(!r)return;
+  try {
+    await fsUpdate(teamPath('registrations'),r._fid,{status:'cancelled'});
+    r.status='cancelled'; closeCancelOv();
+    showToast('已成功取消「'+r.tname+'」的報名');
+    queryMyRegs(); pendingCancelId=null;
+  } catch(e){ showToast('取消失敗，請再試',false); }
+}
+
+/* ════════════════════════════════════════
+   ③ 公開報名名單
+════════════════════════════════════════ */
+function renderRoster() {
+  var tabs=document.getElementById('rosterTabs'), content=document.getElementById('rosterContent');
+  var tList=tournaments.slice().sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
+  if (!tList.length){
+    tabs.innerHTML=''; content.innerHTML='<div class="card" style="text-align:center;padding:34px;color:#bbb;"><div style="font-size:38px;margin-bottom:7px">📭</div><div>目前尚無比賽場次</div></div>'; return;
+  }
+  if (!rosterFilter) rosterFilter=tList[0].id;
+  tabs.innerHTML=tList.map(function(t){
+    return '<button class="rtab'+(rosterFilter===t.id?' active':'')+'" onclick="setRosterFilter(\''+t.id+'\')">'+t.name+'</button>';
+  }).join('');
+  var t=tList.find(function(x){ return x.id===rosterFilter; }); if(!t){content.innerHTML='';return;}
+  var list=regs.filter(function(r){ return r.tid===rosterFilter&&r.status!=='cancelled'; })
+    .sort(function(a,b){ return a.at.localeCompare(b.at); });
+  var sm={pending:'<span class="badge bp">待審核</span>',confirmed:'<span class="badge bc">已確認</span>'};
+  var html='<div class="roster-card"><div class="roster-head">'
+    +'<div><div class="roster-head-t">'+t.name+'</div><div class="roster-head-i">'+fmtDate(t.date)+'　📍 '+(t.venue||'—')+(t.desc?' | '+linkify(t.desc):'')+'</div></div>'
+    +'<div class="roster-cnt">共 '+list.length+' 人報名</div>'
+    +'</div>';
+  if (!list.length) { html+='<div class="roster-no">此場次尚無報名記錄</div>'; }
+  else {
+    html+='<div style="overflow-x:auto"><table class="rtable"><thead><tr><th>#</th><th>姓名</th><th>性別</th><th>差點</th><th>希望同組</th><th>狀態</th></tr></thead><tbody>'
+      +list.map(function(r,i){
+        return '<tr><td>'+(i+1)+'</td><td style="font-weight:600">'+r.name+'</td><td>'+r.gender+'</td><td>'+r.handicap+'</td><td style="font-size:.77rem;color:#888">'+r.group+'</td><td>'+sm[r.status]+'</td></tr>';
+      }).join('')
+      +'</tbody></table></div>';
+  }
+  content.innerHTML=html+'</div>';
+}
+function setRosterFilter(id){ rosterFilter=id; renderRoster(); }
+
+/* ════════════════════════════════════════
+   ④ 後台管理
+════════════════════════════════════════ */
+function refreshStats() {
+  var list=adminFilter==='all'?regs:regs.filter(function(r){ return r.tid===adminFilter; });
+  document.getElementById('admTotal').textContent    =list.length;
+  document.getElementById('admConfirmed').textContent=list.filter(function(r){ return r.status==='confirmed'; }).length;
+  document.getElementById('admPending').textContent  =list.filter(function(r){ return r.status==='pending'; }).length;
+  document.getElementById('admCancelled').textContent=list.filter(function(r){ return r.status==='cancelled'; }).length;
+}
+function renderFilterTabs() {
+  var sorted=tournaments.slice().sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
+  var h='<button class="ft'+(adminFilter==='all'?' active':'')+'" onclick="setFilter(\'all\')">全部（'+regs.length+'）</button>';
+  sorted.forEach(function(t){
+    var cnt=regs.filter(function(r){ return r.tid===t.id; }).length;
+    h+='<button class="ft'+(adminFilter===t.id?' active':'')+'" onclick="setFilter(\''+t.id+'\')">'+t.name+'（'+cnt+'）</button>';
+  });
+  document.getElementById('filterTabs').innerHTML=h;
+}
+function setFilter(v){ adminFilter=v; refreshStats(); renderFilterTabs(); renderTable(); }
+function renderTable() {
+  var q=document.getElementById('searchQ').value.toLowerCase();
+  var list=adminFilter==='all'?regs:regs.filter(function(r){ return r.tid===adminFilter; });
+  list=list.filter(function(r){ return r.name.toLowerCase().includes(q)||(r.phone||'').includes(q); });
+  var tb=document.getElementById('regTable');
+  if (!list.length){ tb.innerHTML='<tr><td colspan="9"><div class="empty"><div class="ic2">⛳</div><div>尚無報名資料</div></div></td></tr>'; return; }
+  var bm={pending:'<span class="badge bp">待審核</span>',confirmed:'<span class="badge bc">已確認</span>',cancelled:'<span class="badge bx">已取消</span>'};
+  tb.innerHTML=list.map(function(r,i){
+    return '<tr><td>'+(i+1)+'</td>'
+      +'<td style="font-size:.75rem;max-width:95px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="'+(r.tname||'')+'">'+(r.tname||'—')+'</td>'
+      +'<td><a href="#" style="color:var(--gm);text-decoration:none;font-weight:600;" onclick="viewDetail(\''+r._fid+'\');return false">'+r.name+'</a></td>'
+      +'<td>'+r.gender+'</td><td>'+r.phone+'</td><td>'+r.handicap+'</td>'
+      +'<td style="font-size:.73rem">'+r.at+'</td><td>'+bm[r.status]+'</td>'
+      +'<td><div class="abtns">'
+      +(r.status!=='confirmed'?'<button class="btn-sm grn" onclick="setStatus(\''+r._fid+'\',\'confirmed\')">確認</button>':'')
+      +(r.status!=='cancelled'?'<button class="btn-sm red" onclick="setStatus(\''+r._fid+'\',\'cancelled\')">取消</button>':'')
+      +'</div></td></tr>';
+  }).join('');
+}
+async function setStatus(fid,st) {
+  var r=regs.find(function(x){ return x._fid===fid; }); if(!r)return;
+  try{ await fsUpdate(teamPath('registrations'),fid,{status:st}); r.status=st; refreshStats(); renderFilterTabs(); renderTable(); showToast(r.name+' 狀態已更新'); }
+  catch(e){ showToast('更新失敗',false); }
+}
+function viewDetail(fid) {
+  var r=regs.find(function(x){ return x._fid===fid; }); if(!r)return;
+  document.getElementById('detailH').textContent='⛳ '+r.name+' — 報名詳情';
+  var fields=[['報名場次',r.tname||'—'],['報名時間',r.at],['姓名',r.name],['性別',r.gender],['手機',r.phone],['Email',r.email],['會員編號',r.member],['公司/單位',r.company],['差點',r.handicap],['同組球友',r.group],['加購服務',r.extras],['備註',r.notes]];
+  document.getElementById('detailContent').innerHTML=fields.map(function(f){ return '<div class="di"><div class="dk">'+f[0]+'</div><div class="dv">'+f[1]+'</div></div>'; }).join('');
+  document.getElementById('detailOv').classList.add('show');
+}
+function closeDetail(){ document.getElementById('detailOv').classList.remove('show'); }
+function exportCSV() {
+  function dl(list,fname){
+    var hdr=['序號','場次','姓名','性別','電話','Email','會員編號','公司','差點','同組球友','加購','備註','狀態','報名時間'];
+    var rows=list.map(function(r,i){ return [i+1,r.tname,r.name,r.gender,r.phone,r.email,r.member,r.company,r.handicap,r.group,r.extras,r.notes,r.status,r.at]; });
+    var csv=[hdr].concat(rows).map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\n');
+    var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'})); a.download=fname+'.csv'; a.click();
+  }
+  if (adminFilter==='all') {
+    var tids=[]; regs.forEach(function(r){ if(tids.indexOf(r.tid)<0)tids.push(r.tid); });
+    if (!tids.length){ showToast('尚無資料可匯出',false); return; }
+    tids.forEach(function(tid){ var t=tournaments.find(function(x){ return x.id===tid; }); dl(regs.filter(function(r){ return r.tid===tid; }),t?t.name:'未知場次'); });
+    showToast('已匯出 '+tids.length+' 個場次的 CSV！');
+  } else {
+    var list=regs.filter(function(r){ return r.tid===adminFilter; });
+    if (!list.length){ showToast('此場次尚無資料',false); return; }
+    var t=tournaments.find(function(x){ return x.id===adminFilter; });
+    dl(list,t?t.name:'報名名單'); showToast('CSV 匯出成功！');
+  }
+}
+
+/* ════════════════════════════════════════
+   ⑤ 場次管理
+════════════════════════════════════════ */
+function renderTList() {
+  var el=document.getElementById('tList');
+  if (!tournaments.length){ el.innerHTML='<div class="no-t2"><div style="font-size:36px;margin-bottom:7px">🏌️</div><div>尚未建立任何場次</div></div>'; return; }
+  var sorted=tournaments.slice().sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
+  el.innerHTML=sorted.map(function(t){
+    var cnt=regCount(t.id),op=t.status==='open';
+    return '<div class="tmc'+(op?'':' closed')+'">'
+      +'<div class="tmi"><div class="tmt">'+t.name+'<span class="pill '+(op?'po':'pc')+'">'+(op?'開放報名':'已關閉')+'</span></div>'
+      +'<div class="tmm"><span>📅 '+fmtDate(t.date)+'</span>'+(t.time?'<span>🕗 '+t.time+'</span>':'')+'<span>📍 '+(t.venue||'—')+'</span><span>🏆 '+(t.format||'—')+'</span><span>👥 已報名 '+cnt+' 人'+(t.quota>0?' / 上限 '+t.quota+' 人':'')+'</span></div>'
+      +(t.desc?'<div style="font-size:.74rem;color:#999;margin-top:4px;">📝 '+linkify(t.desc)+'</div>':'')
+      +'</div>'
+      +'<div class="tma"><button class="btn-sm grn" onclick="openTModal(\''+t.id+'\')">✏️</button><button class="btn-sm amb" onclick="toggleTStatus(\''+t.id+'\')">'+(op?'🔒':'🔓')+'</button><button class="btn-sm red" onclick="openDelTModal(\''+t.id+'\')">🗑</button></div>'
+      +'</div>';
+  }).join('');
+}
+function openTModal(id) {
+  editTid=id||null;
+  tModalExtras=[]; // reset working copy
+  document.getElementById('tModalH').textContent=id?'編輯比賽場次':'新增比賽場次';
+  if (id) {
+    var t=tournaments.find(function(x){ return x.id===id; });
+    document.getElementById('t-name').value=t.name; document.getElementById('t-date').value=t.date||'';
+    document.getElementById('t-time').value=t.time||''; document.getElementById('t-venue').value=t.venue||'';
+    document.getElementById('t-format').value=t.format||''; document.getElementById('t-quota').value=t.quota||0;
+    document.getElementById('t-desc').value=t.desc||'';
+    document.querySelector('input[name="tst"][value="'+(t.status||'open')+'"]').checked=true;
+    tModalExtras=(t.extras||[]).map(function(e){ return Object.assign({},e); });
+  } else {
+    ['t-name','t-date','t-time','t-venue','t-desc'].forEach(function(i){ document.getElementById(i).value=''; });
+    document.getElementById('t-quota').value=0;
+    document.querySelector('input[name="tst"][value="open"]').checked=true;
+  }
+  renderTModalExtras();
+  document.getElementById('tOv').classList.add('show');
+}
+
+var tModalExtras=[];
+
+function renderTModalExtras() {
+  var el=document.getElementById('tModalExtrasList');
+  var em=document.getElementById('tModalExtrasEmpty');
+  if (!tModalExtras.length){ el.innerHTML=''; em.style.display='block'; return; }
+  em.style.display='none';
+  el.innerHTML=tModalExtras.map(function(ex,i){
+    return '<div style="display:flex;align-items:center;gap:7px;padding:8px 10px;background:#fafaf8;border:1.5px solid #e0e4dc;border-radius:7px;margin-bottom:6px;">'
+      +'<input type="text" id="tex-icon-'+i+'" value="'+(ex.icon||'')+'" maxlength="4" placeholder="🎁" style="width:44px;text-align:center;font-size:1rem;padding:4px 6px;">'
+      +'<input type="text" id="tex-name-'+i+'" value="'+(ex.name||'')+'" placeholder="品項名稱（必填）" style="flex:1;min-width:0;">'
+      +'<input type="number" id="tex-price-'+i+'" value="'+(ex.price||0)+'" placeholder="價格" style="width:76px;" min="0">'
+      +'<span style="font-size:.71rem;color:#aaa;">元</span>'
+      +'<button class="btn-sm red" style="flex-shrink:0;padding:4px 8px;" onclick="removeTModalExtra('+i+')">✕</button>'
+      +'</div>';
+  }).join('');
+}
+
+function addTModalExtra() {
+  tModalExtras.push({id:'ex'+Date.now(),icon:'',name:'',price:0});
+  renderTModalExtras();
+  // 聚焦到新品項名稱欄
+  var idx=tModalExtras.length-1;
+  var el=document.getElementById('tex-name-'+idx);
+  if(el) el.focus();
+}
+
+function removeTModalExtra(i) {
+  tModalExtras.splice(i,1);
+  renderTModalExtras();
+}
+
+function getTModalExtrasFromDOM() {
+  // 從 DOM 讀取目前輸入值，確保最新資料
+  return tModalExtras.map(function(ex,i){
+    var icon=document.getElementById('tex-icon-'+i);
+    var name=document.getElementById('tex-name-'+i);
+    var price=document.getElementById('tex-price-'+i);
+    return {
+      id: ex.id,
+      icon:  icon  ? icon.value.trim()  : ex.icon,
+      name:  name  ? name.value.trim()  : ex.name,
+      price: price ? parseInt(price.value)||0 : ex.price
+    };
+  }).filter(function(ex){ return ex.name!==''; });
+}
+
+function closeTModal(){ document.getElementById('tOv').classList.remove('show'); }
+
+async function saveTournament() {
+  var name=document.getElementById('t-name').value.trim(), date=document.getElementById('t-date').value, venue=document.getElementById('t-venue').value.trim();
+  if (!name||!date||!venue){ showToast('請填寫場次名稱、日期及地點',false); return; }
+  var finalExtras=getTModalExtrasFromDOM();
+  var data={name:name,date:date,time:document.getElementById('t-time').value,venue:venue,format:document.getElementById('t-format').value,quota:parseInt(document.getElementById('t-quota').value)||0,desc:document.getElementById('t-desc').value.trim(),status:document.querySelector('input[name="tst"]:checked').value,extras:finalExtras};
+  try {
+    if (editTid) {
+      var t=tournaments.find(function(x){ return x.id===editTid; });
+      await fsUpdate(teamPath('tournaments'),t._fid,data); Object.assign(t,data); showToast('場次「'+name+'」已更新！');
+    } else {
+      data.id='t'+Date.now(); var fid=await fsAdd(teamPath('tournaments'),data); data._fid=fid; tournaments.push(data); showToast('場次「'+name+'」已新增！');
+    }
+    closeTModal(); renderTList(); renderFilterTabs();
+  } catch(e){ showToast('儲存失敗，請再試',false); console.error(e); }
+}
+async function toggleTStatus(id) {
+  var t=tournaments.find(function(x){ return x.id===id; }); if(!t)return;
+  var ns=t.status==='open'?'closed':'open';
+  try{ await fsUpdate(teamPath('tournaments'),t._fid,{status:ns}); t.status=ns; renderTList(); showToast('場次「'+t.name+'」已'+(ns==='open'?'開放':'關閉')+'報名'); }
+  catch(e){ showToast('操作失敗',false); }
+}
+function openDelTModal(id) {
+  delTid=id;
+  var t=tournaments.find(function(x){ return x.id===id; }), cnt=regs.filter(function(r){ return r.tid===id; }).length;
+  document.getElementById('delTWarn').textContent='即將刪除場次「'+t.name+'」，目前共有 '+cnt+' 筆報名記錄將一併移除。';
+  document.getElementById('delTOv').classList.add('show');
+}
+function closeDelTModal(){ document.getElementById('delTOv').classList.remove('show'); }
+async function confirmDelT() {
+  var t=tournaments.find(function(x){ return x.id===delTid; });
+  var fids=regs.filter(function(r){ return r.tid===delTid; }).map(function(r){ return r._fid; });
+  try {
+    await fsDel(teamPath('tournaments'),t._fid);
+    for (var i=0;i<fids.length;i++) await fsDel(teamPath('registrations'),fids[i]);
+    tournaments=tournaments.filter(function(x){ return x.id!==delTid; });
+    regs=regs.filter(function(r){ return r.tid!==delTid; });
+    closeDelTModal(); renderTList(); renderFilterTabs(); showToast('場次「'+t.name+'」已刪除');
+  } catch(e){ showToast('刪除失敗',false); }
+}
+
+/* ════════════════════════════════════════
+   ⑥ 系統設定
+════════════════════════════════════════ */
+function loadSettings() {
+  document.getElementById('cfg-name').value=cfg.sysname;
+  document.getElementById('cfg-terms').value=cfg.terms;
+  document.getElementById('cfg-user').value=cfg.adminUser||'admin';
+  document.getElementById('cfg-pass').value=cfg.adminPass||'';
+  renderExtrasList();
+}
+async function saveSettings() {
+  cfg.sysname  =document.getElementById('cfg-name').value.trim()||cfg.sysname;
+  cfg.terms    =document.getElementById('cfg-terms').value.trim()||cfg.terms;
+  cfg.adminUser=document.getElementById('cfg-user').value.trim()||cfg.adminUser;
+  cfg.adminPass=document.getElementById('cfg-pass').value||cfg.adminPass;
+  document.getElementById('sysTitle').textContent=cfg.sysname;
+  document.getElementById('termsText').textContent=cfg.terms;
+  try {
+    if (cfgDocId){ await fsSet(teamPath('config'),cfgDocId,cfg); }
+    else{ cfgDocId=await fsAdd(teamPath('config'),cfg); }
+    showToast('系統設定已儲存！');
+  } catch(e){ showToast('儲存失敗',false); }
+}
+/* ════════════════════════════════════════
+   ⑦ 總管理員 — 球隊管理
+════════════════════════════════════════ */
+function renderSuperPanel() {
+  var el=document.getElementById('superTeamList');
+  document.getElementById('super-user').value=superCfg.superUser;
+  document.getElementById('super-pass').value=superCfg.superPass;
+  if (!allTeams.length){ el.innerHTML='<div style="color:rgba(255,255,255,.4);font-size:.84rem;padding:10px 0;">尚未建立任何球隊，請點下方「新增球隊」</div>'; return; }
+  var sortedTeams=allTeams.slice().sort(function(a,b){ return (Number(a.sortOrder)||999)-(Number(b.sortOrder)||999); });
+  el.innerHTML=sortedTeams.map(function(t){
+    return '<div class="team-manage-card">'
+      +'<div class="ti">'+(t.icon||'⛳')+'</div>'
+      +'<div class="team-manage-info">'
+      +'<div class="team-manage-name">'+t.name+(t.sortOrder?'<span style="font-size:.66rem;color:rgba(201,168,76,.5);margin-left:8px;">排序:'+t.sortOrder+'</span>':'')+'</div>'
+      +'<div class="team-manage-meta">'+(t.desc||'')+'　管理員帳號：'+t.adminUser+'</div>'
+      +'</div>'
+      +'<div class="team-manage-btns">'
+      +'<button class="btn-sm blu" onclick="enterTeamAsSuper(\''+t._fid+'\')">進入</button>'
+      +'<button class="btn-sm grn" onclick="openTeamModal(\''+t._fid+'\')">✏️</button>'
+      +'<button class="btn-sm red" onclick="openDelTeamModal(\''+t._fid+'\')">🗑</button>'
+      +'</div></div>';
+  }).join('');
+}
+
+async function enterTeamAsSuper(fid) {
+  await selectTeam(fid);
+  isSuper=true; isAdmin=true;
+  document.getElementById('adminInfo').classList.add('show');
+  document.getElementById('adminName').textContent='👑 '+currentTeam.name+'（總管理員）';
+}
+
+function openTeamModal(fid) {
+  editTeamId=fid||null;
+  document.getElementById('teamModalH').textContent=fid?'編輯球隊':'新增球隊';
+  if (fid) {
+    var t=allTeams.find(function(x){ return x._fid===fid; });
+    document.getElementById('team-name').value=t.name;
+    document.getElementById('team-icon').value=t.icon||'';
+    document.getElementById('team-desc').value=t.desc||'';
+    document.getElementById('team-sort').value=t.sortOrder||'';
+    document.getElementById('team-user').value=t.adminUser||'';
+    document.getElementById('team-pass').value=t.adminPass||'';
+  } else {
+    ['team-name','team-icon','team-desc','team-sort','team-user','team-pass'].forEach(function(i){ document.getElementById(i).value=''; });
+  }
+  document.getElementById('teamOv').classList.add('show');
+}
+function closeTeamModal(){ document.getElementById('teamOv').classList.remove('show'); }
+async function saveTeam() {
+  var name=document.getElementById('team-name').value.trim();
+  var user=document.getElementById('team-user').value.trim();
+  var pass=document.getElementById('team-pass').value;
+  if (!name||!user||!pass){ showToast('請填寫球隊名稱、管理員帳號及密碼',false); return; }
+  var data={name:name,icon:document.getElementById('team-icon').value.trim(),desc:document.getElementById('team-desc').value.trim(),sortOrder:parseInt(document.getElementById('team-sort').value)||999,adminUser:user,adminPass:pass};
+  try {
+    if (editTeamId) {
+      await fsSet('teams',editTeamId,data);
+      var t=allTeams.find(function(x){ return x._fid===editTeamId; }); Object.assign(t,data);
+      showToast('球隊「'+name+'」已更新！');
+    } else {
+      var fid=await fsAdd('teams',data); data._fid=fid; allTeams.push(data);
+      showToast('球隊「'+name+'」已新增！');
+    }
+    closeTeamModal(); renderSuperPanel(); renderTeamGrid();
+  } catch(e){ showToast('儲存失敗，請再試',false); console.error(e); }
+}
+function openDelTeamModal(fid) {
+  delTeamId=fid;
+  var t=allTeams.find(function(x){ return x._fid===fid; });
+  document.getElementById('delTeamWarn').textContent='即將刪除球隊「'+t.name+'」及所有相關資料。';
+  document.getElementById('delTeamOv').classList.add('show');
+}
+function closeDelTeamModal(){ document.getElementById('delTeamOv').classList.remove('show'); }
+async function confirmDelTeam() {
+  var t=allTeams.find(function(x){ return x._fid===delTeamId; });
+  try {
+    await fsDel('teams',t._fid);
+    allTeams=allTeams.filter(function(x){ return x._fid!==delTeamId; });
+    closeDelTeamModal(); renderSuperPanel(); renderTeamGrid();
+    showToast('球隊「'+t.name+'」已刪除');
+  } catch(e){ showToast('刪除失敗',false); }
+}
+async function saveSuperSettings() {
+  superCfg.superUser=document.getElementById('super-user').value.trim()||superCfg.superUser;
+  superCfg.superPass=document.getElementById('super-pass').value||superCfg.superPass;
+  try {
+    if (superCfgDocId){ await fsSet('superConfig',superCfgDocId,superCfg); }
+    else{ superCfgDocId=await fsAdd('superConfig',superCfg); }
+    showToast('總管理員密碼已更新！');
+  } catch(e){ showToast('儲存失敗',false); }
+}
+
+/* 網址自動轉連結 */
+function linkify(text) {
+  if (!text) return '';
+  var urlRegex = /(https?:\/\/[^\s]+)/g;
+  return text.replace(urlRegex, function(url) {
+    return '<a href="' + url + '" target="_blank" rel="noopener" style="color:var(--gold);word-break:break-all;">' + url + '</a>';
+  });
+}
+
+/* 啟動 */
+init();
+</script>
+</body>
+</html>
